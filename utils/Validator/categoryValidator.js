@@ -24,9 +24,7 @@ exports.createCategoriyValedator = [
 
 exports.updateCategoriyValedator = [
   check("name")
-    .not()
-    .isEmpty()
-    .withMessage("name is required")
+    .optional()
     .isLength({ min: 3, max: 32 })
     .withMessage("name must be between 3 and 32 characters"),
   // Make slug for category name

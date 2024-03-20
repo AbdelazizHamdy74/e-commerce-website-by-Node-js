@@ -1,5 +1,26 @@
 const Category = require("../models/categoryModel");
+const asyncHandler = require("express-async-handler");
 const factory = require("./handlersFactory");
+const { uploadSingleImages } = require("../middlewares/uploadImageMiddleware");
+const sharp = require("sharp");
+const { v4: uuidv4 } = require("uuid");
+
+// @desc Upload image for category
+exports.uploadImages = uploadSingleImages("image");
+
+// midelwire to resize the image [Image processing]
+exports.resizeImage = asyncHandler(async function (req, res, next) {
+  const fileNmae = `category-${uuidv4()}-${Date.now()}.jpeg`;
+  await sharp(req.file.buffer)
+    .resize(700, 700)
+    .toFormat("jpeg")
+    // .jpeg({ quality: 85 })
+    .toFile(`./uploads/categories/ ${fileNmae}`);
+
+  //Save the image into the database
+  req.body.image = fileNmae;
+  next();
+});
 
 // @desc    Create category
 // @route   POST  /api/v1/categories
