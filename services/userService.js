@@ -75,3 +75,8 @@ exports.changeUserPassword = asyncHandler(async (req, res, next) => {
 });
 
 exports.deleteUser = factory.deleteOne(User);
+
+exports.getMyData = asyncHandler(async (req, res, next) => {
+  req.params.id = req.user._id;
+  next();
+});

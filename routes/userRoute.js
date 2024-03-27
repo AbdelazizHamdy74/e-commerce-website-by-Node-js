@@ -16,11 +16,16 @@ const {
   uploadUserImage,
   resizeImage,
   changeUserPassword,
+  getMyData,
 } = require("../services/userService");
 
 const authService = require("../services/authService");
 const router = express.Router();
 
+//for logged in user
+router.get("/getMe", authService.protected, getMyData, getUser);
+
+//for only admin
 router.put(
   "/changePassword/:id",
   changeUserPasswordValidator,
