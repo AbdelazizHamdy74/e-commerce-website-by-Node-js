@@ -16,7 +16,7 @@ const {
   resizeImage,
 } = require("../services/categoryService");
 
-const AuthService = require("../services/authService");
+const authService = require("../services/authService");
 const subCategoryRoute = require("./subCategoryRoute");
 
 const router = express.Router();
@@ -27,7 +27,8 @@ router
   .route("/")
   .get(getCategories)
   .post(
-    AuthService.protected,
+    authService.protected,
+    authService.allowedTo("admin", "suberAdmin"),
     uploadImages,
     resizeImage,
     createCategoriyValedator,
@@ -36,6 +37,18 @@ router
 router
   .route("/:id")
   .get(getCategoriyValedator, getCategory)
-  .put(uploadImages, resizeImage, updateCategoriyValedator, updateCategory)
-  .delete(deleteCategoriyValedator, deleteCategory);
+  .put(
+    authService.protected,
+    authService.allowedTo("admin", "suberAdmin"),
+    uploadImages,
+    resizeImage,
+    updateCategoriyValedator,
+    updateCategory
+  )
+  .delete(
+    authService.protected,
+    authService.allowedTo("admin", "suberAdmin"),
+    deleteCategoriyValedator,
+    deleteCategory
+  );
 module.exports = router;

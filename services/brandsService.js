@@ -12,14 +12,16 @@ exports.uploadImages = uploadSingleImages("image");
 // midelwire to resize the image [Image processing]
 exports.resizeImage = asyncHandler(async function (req, res, next) {
   const fileNmae = `brand-${uuidv4()}-${Date.now()}.jpeg`;
-  await sharp(req.file.buffer)
-    .resize(700, 700)
-    .toFormat("jpeg")
-    // .jpeg({ quality: 85 })
-    .toFile(`./uploads/brands/ ${fileNmae}`);
+  if (req.file) {
+    await sharp(req.file.buffer)
+      .resize(700, 700)
+      .toFormat("jpeg")
+      // .jpeg({ quality: 85 })
+      .toFile(`./uploads/brands/ ${fileNmae}`);
 
-  //Save the image into the database
-  req.body.image = fileNmae;
+    //Save the image into the database
+    req.body.image = fileNmae;
+  }
   next();
 });
 // @desc    Create brand
