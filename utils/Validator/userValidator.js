@@ -4,6 +4,7 @@ const slugify = require("slugify");
 var bcrypt = require("bcryptjs");
 
 const User = require("../../models/userModel");
+
 exports.createUserValidator = [
   check("name")
     .notEmpty()
@@ -65,14 +66,14 @@ exports.updateUserValidator = [
   check("email")
     .optional()
     .isEmail()
-    .withMessage("Please enter a valid email address"),
-  // .custom((val) =>
-  //   User.findOne({ email: val }).then((user) => {
-  //     if (user) {
-  //       return Promise.reject(new Error("Email already exists"));
-  //     }
-  //   })
-  // ),
+    .withMessage("Please enter a valid email address")
+    .custom((val) =>
+      User.findOne({ email: val }).then((user) => {
+        if (user) {
+          return Promise.reject(new Error("Email already exists"));
+        }
+      })
+    ),
 
   check("password")
     .optional()
@@ -132,5 +133,30 @@ exports.changeUserPasswordValidator = [
 
 exports.deleteUserValidator = [
   check("id").isMongoId().withMessage("Invalid Brand id format"),
+  validatorMiddleware,
+];
+
+////////////////////////////////////////////////////////////////
+// Update logged user
+exports.updateLoggedUserValidator = [
+  body("name")
+    .optional()
+    .custom((val, { req }) => {
+      req.body.slug = slugify(val);
+      return true;
+    }),
+  check("email")
+    .optional()
+    .isEmail()
+    .withMessage("Please enter a valid email address")
+    .custom((val) =>
+      User.findOne({ email: val }).then((user) => {
+        if (user) {
+          return Promise.reject(new Error("Email already exists"));
+        }
+      })
+    ),
+
+  check("phoneNumber").optional().isMobilePhone(["ar-EG", "ar-PS", "ar-SA"]),
   validatorMiddleware,
 ];

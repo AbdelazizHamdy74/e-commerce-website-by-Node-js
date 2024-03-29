@@ -54,13 +54,21 @@ exports.protected = asyncHandler(async (req, res, next) => {
   }
   // verify the token
   const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-  // console.log(decoded);
 
   //check if the user exists
   const user = await User.findById(decoded.userId);
   if (!user) {
     return next(new ApiError("User dose not longer exist", 401));
   }
+  ///// check if the user active or not
+  // if (!user.active) {
+  //   return next(
+  //     new ApiError(
+  //       "Your account is not active please active your account first",
+  //       401
+  //     )
+  //   );
+  // }
   //check if user change password after token create
   if (user.passwordChangeAt) {
     const passwordChangeTimeStamp = parseInt(

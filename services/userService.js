@@ -76,6 +76,7 @@ exports.changeUserPassword = asyncHandler(async (req, res, next) => {
 
 exports.deleteUser = factory.deleteOne(User);
 
+/////////////////////////////////////////////
 exports.getMyData = asyncHandler(async (req, res, next) => {
   req.params.id = req.user._id;
   next();
@@ -96,4 +97,37 @@ exports.changeMyPassword = asyncHandler(async (req, res, next) => {
   // then generate new token
   const token = createToken(user._id);
   res.status(200).json({ data: user, token });
+});
+
+exports.updateMyData = asyncHandler(async (req, res, next) => {
+  //update only email, name, and Phone number
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+
+    {
+      name: req.body.name,
+      email: req.body.email,
+      phoneNumber: req.body.phoneNumber,
+    },
+    {
+      new: true,
+    }
+  );
+  res.status(200).json({ data: user });
+});
+
+exports.deActiveMe = asyncHandler(async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user._id, { active: false });
+  res.status(204).json({ status: "Acount delete Successfly" });
+});
+
+exports.activeMe = asyncHandler(async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    { active: true },
+    {
+      new: true,
+    }
+  );
+  res.status(200).json({ data: user });
 });

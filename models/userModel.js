@@ -38,6 +38,10 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin", "suberAdmin"],
       default: "user",
     },
+    active: {
+      type: Boolean,
+      default: true,
+    },
   },
   { timestamps: true }
 );
