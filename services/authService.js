@@ -6,12 +6,7 @@ const ApiError = require("../utils/apiError");
 const asyncHandler = require("express-async-handler");
 const User = require("../models/userModel");
 const sendEmail = require("../utils/sendEmail");
-
-const createToken = (payload) => {
-  return jwt.sign({ userId: payload }, process.env.JWT_SECRET_KEY, {
-    expiresIn: process.env.JWT_EXPIRY_TIME,
-  });
-};
+const createToken = require("../utils/createToken");
 
 ////////////////////////////////
 exports.register = asyncHandler(async (req, res, next) => {
