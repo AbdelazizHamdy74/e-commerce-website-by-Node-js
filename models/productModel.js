@@ -71,8 +71,20 @@ const productSchema = new mongoose.Schema(
       default: 0,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    //to enable virtual
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
+// display the reviews on the product if you desplay it
+productSchema.virtual("review", {
+  ref: "Review",
+  localField: "_id",
+  foreignField: "product",
+  justOne: false,
+});
 
 const setImageURL = (doc) => {
   if (doc.imageCover) {

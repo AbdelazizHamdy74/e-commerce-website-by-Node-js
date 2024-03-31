@@ -16,7 +16,11 @@ const {
 } = require("../services/productService");
 
 const authService = require("../services/authService");
+const reviewRoute = require("./reviewRoute");
 const router = express.Router();
+
+//nested route
+router.use("/:productId/review", reviewRoute);
 
 router
   .route("/")

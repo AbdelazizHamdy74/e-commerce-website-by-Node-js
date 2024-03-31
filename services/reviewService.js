@@ -25,3 +25,24 @@ exports.updateReview = factory.updateOne(Review);
 // @route   DELETE /api/v1/Review/:id
 // @access  Private/Producted/user-admin-suberAdmin
 exports.deleteReview = factory.deleteOne(Review);
+
+// @desc    Create review for specific product  [Nested route]
+// @route   GET /api/v1/product/:productId/review
+// @route EX  localhost:3000/api/v1/product/65e9817874f47ce0e46706eb/review?page=1
+// @access  Private
+exports.set_ProductId_UserId_ToBody = (req, res, next) => {
+  if (!req.body.product) req.body.product = req.params.productId;
+  if (!req.body.user) req.body.user = req.user.id;
+  next();
+};
+
+// @desc    Get list of reviews for specific product [Nested route]
+// Nested   route
+// @route   GET /api/v1/product/:productId/review
+// @route EX  localhost:3000/api/v1/product/65e9817874f47ce0e46706eb/review?page=1
+exports.createFilterObj = (req, res, next) => {
+  let filterObject = {};
+  if (req.params.productId) filterObject = { product: req.params.productId };
+  req.filterObj = filterObject;
+  next();
+};
