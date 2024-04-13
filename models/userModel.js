@@ -48,6 +48,17 @@ const userSchema = new mongoose.Schema(
         ref: "Product",
       },
     ],
+    addresses: [
+      {
+        id: { type: mongoose.Schema.Types.ObjectId },
+        Country: String,
+        mobileNumber: Number,
+        streetName: String,
+        buildingNameOrNumber: String,
+        city: String,
+        zipCode: Number,
+      },
+    ],
   },
   { timestamps: true }
 );
