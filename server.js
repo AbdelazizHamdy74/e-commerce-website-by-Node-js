@@ -17,6 +17,7 @@ const reviewRoute = require("./routes/reviewRoute");
 const wishlistRoute = require("./routes/wishlistRoute");
 const addressRoute = require("./routes/addressRoute");
 const couponRoute = require("./routes/couponRoute");
+const cartRoute = require("./routes/cartRoute");
 
 // Connect with db
 dbConnection();
@@ -44,6 +45,7 @@ app.use("/api/v1/review", reviewRoute);
 app.use("/api/v1/wishlist", wishlistRoute);
 app.use("/api/v1/address", addressRoute);
 app.use("/api/v1/coupon", couponRoute);
+app.use("/api/v1/cart", cartRoute);
 
 app.all("*", (req, res, next) => {
   // const err = new Error(`Cant find this route: ${req.originalUrl}`);
