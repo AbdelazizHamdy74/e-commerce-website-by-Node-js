@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { bool } = require("sharp");
 const orderSchema = new mongoose.Schema(
   {
     cartItems: [
@@ -22,11 +23,16 @@ const orderSchema = new mongoose.Schema(
     taxPrice: { type: Number, default: 0 },
     shippingPrice: { type: Number, default: 0 },
     totalOrderPrice: { type: Number, default: 0 },
+    // orderStatus: {
+    //   type: String,
+    //   enum: ["Pending", "Shipped", "Delivered"],
+    //   default: "Pending",
+    // },
     orderStatus: {
-      type: String,
-      enum: ["Pending", "Shipped", "Delivered"],
-      default: "Pending",
+      type: Boolean,
+      default: false,
     },
+    deliveredAt: { type: Date },
     paymentType: {
       type: String,
       enum: ["Cash", "Credit Card", "Paypal"],
@@ -46,4 +52,12 @@ const orderSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+orderSchema.pre(/^find/, function (next) {
+  this.populate({ path: "user", select: "name profileImage" }).populate({
+    path: "cartItems.product",
+    select: "title imageCover",
+  });
+  next();
+});
 module.exports = mongoose.model("Order", orderSchema);

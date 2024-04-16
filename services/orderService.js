@@ -8,7 +8,6 @@ const Cart = require("../models/cartModel");
 // @desc    create cash order
 // @route   POST  /api/v1/order/cratId
 // @access  Private/Protected/User
-
 exports.createCashOrder = asyncHandler(async (req, res, next) => {
   const taxPrice = 0,
     shippingPrice = 0;
@@ -46,5 +45,59 @@ exports.createCashOrder = asyncHandler(async (req, res, next) => {
   res.status(201).json({
     success: true,
     data: order,
+  });
+});
+
+/////
+exports.filterObjectForLoggedUser = asyncHandler(async (req, res, next) => {
+  if (req.user.role == "user") req.filterObject = { user: req.user._id };
+  next();
+});
+
+// @desc    get all order
+// @route   POST  /api/v1/order/
+// @access  Private/Protected/User/ admin/ superadmin
+exports.getAllOrders = factory.getAll(Order);
+
+// @desc    get specific order
+// @route   POST  /api/v1/order/id
+// @access  Private/Protected/User/ admin/ superadmin
+exports.getSpecificOrder = factory.getOne(Order);
+
+// @desc    Update order Paid
+// @route   POST  /api/v1/order/:id/pay
+// @access  Private/Protected/ admin/ superadmin
+exports.updateOrderPaid = asyncHandler(async (req, res, next) => {
+  const order = await Order.findById(req.params.id);
+  if (!order) {
+    return next(new ApiError("Order not found for You!"));
+  }
+  order.isPaid = true;
+  order.paidAt = Date.now();
+
+  const updatedOrder = await order.save();
+
+  res.status(201).json({
+    success: true,
+    data: updatedOrder,
+  });
+});
+
+// @desc    Update order Delivered
+// @route   POST  /api/v1/order/:id/delivered
+// @access  Private/Protected/ admin/ superadmin
+exports.updateOrderDelivered = asyncHandler(async (req, res, next) => {
+  const order = await Order.findById(req.params.id);
+  if (!order) {
+    return next(new ApiError("Order not found for You!"));
+  }
+  order.orderStatus = true;
+  order.deliveredAt = Date.now();
+
+  const updatedOrder = await order.save();
+
+  res.status(201).json({
+    success: true,
+    data: updatedOrder,
   });
 });
