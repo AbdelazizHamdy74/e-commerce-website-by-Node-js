@@ -2,11 +2,14 @@ const path = require("path");
 const express = require("express");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
+const cors = require("cors");
+const compression = require("compression");
 
 dotenv.config({ path: "config.env" });
 const ApiError = require("./utils/apiError");
 const errorHandler = require("./middlewares/errorMiddleware");
 const dbConnection = require("./config/database");
+
 const categoryRoute = require("./routes/categoryRoute");
 const subCategoryRoute = require("./routes/subCategoryRoute");
 const brandsRoute = require("./routes/brandsRoute");
@@ -19,13 +22,24 @@ const addressRoute = require("./routes/addressRoute");
 const couponRoute = require("./routes/couponRoute");
 const cartRoute = require("./routes/cartRoute");
 const orderRoute = require("./routes/orderRoute");
+const { webhookCheckout } = require("./services/orderService");
 
 // Connect with db
 dbConnection();
 
 // express app
 const app = express();
+app.use(cors()); // use for enable another domain to access my API
+app.options("*", cors());
+// compress all responses
+app.use(compression());
 
+// checkout webhook
+app.post(
+  "/webhook",
+  express.raw({ type: "application.json" }),
+  webhookCheckout
+);
 // Middlewares
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "uploads")));

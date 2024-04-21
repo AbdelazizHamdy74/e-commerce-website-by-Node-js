@@ -5,6 +5,7 @@ const factory = require("./handlersFactory");
 const Order = require("../models/orderModel");
 const Product = require("../models/productModel");
 const Cart = require("../models/cartModel");
+const User = require("../models/userModel");
 
 // @desc    create cash order
 // @route   POST  /api/v1/order/cratId
@@ -146,4 +147,59 @@ exports.checkoutSession = asyncHandler(async (req, res, next) => {
     success: true,
     data: session,
   });
+});
+
+exports.createOnlineOrder = async (session) => {
+  const cartId = session.client_reference_id;
+  const shippingAddress = session.metadata;
+  const oderPrice = session.amount_total / 100;
+
+  const cart = await Cart.findById(cartId);
+  const user = await User.findOne({ email: session.customer_email });
+
+  // 3) Create order with default paymentMethodType card
+  const order = await Order.create({
+    user: user._id,
+    cartItems: cart.cartItems,
+    shippingAddress,
+    totalOrderPrice: oderPrice,
+    isPaid: true,
+    paidAt: Date.now(),
+    paymentMethodType: "card",
+  });
+
+  // 4) After creating order, decrement product quantity, increment product sold
+  if (order) {
+    const bulkOption = cart.cartItems.map((item) => ({
+      updateOne: {
+        filter: { _id: item.product },
+        update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
+      },
+    }));
+    await Product.bulkWrite(bulkOption, {});
+
+    // 5) Clear cart depend on cartId
+    await Cart.findByIdAndDelete(cartId);
+  }
+};
+// @desc    This webhook will run when stripe payment success paid
+// @route   POST /webhook
+// @access  Protected/User
+exports.webhookCheckout = asyncHandler(async (req, res, next) => {
+  const sig = req.headers["stripe-signature"];
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.rawBody,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+  } catch (err) {
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+  if (event.type === "checkout-session-completed") {
+    // console.log("creat order here.......");
+    createOnlineOrder(event.data.object);
+  }
+  res.status(200).send("Webhook received!");
 });
